@@ -108,7 +108,7 @@ export default async function RootLayout({
 
                       <div className="w-10 h-10 rounded-full border-2 border-slate-700/50 bg-slate-900 flex items-center justify-center overflow-hidden">
                         <UserButton 
-                          fallbackRedirectUrl="/" 
+                          afterSignOutUrl="/" 
                           appearance={{
                             elements: {
                               rootBox: "w-full h-full",
