@@ -27,13 +27,13 @@ export async function POST(req: Request) {
 
   // 1. Περίπτωση: Ολοκλήρωση Πρώτης Πληρωμής
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+    // ΒΑΛΑΜΕ ANY ΕΔΩ
+    const session = event.data.object as any;
 
     if (!session?.metadata?.userId) {
       return new NextResponse("User id is required", { status: 400 });
     }
 
-    // Το "as any" φιμώνει το TypeScript ώστε να μην ψάχνει τους τύπους
     const subscription = (await stripe.subscriptions.retrieve(
       session.subscription as string
     )) as any;
@@ -56,13 +56,13 @@ export async function POST(req: Request) {
 
   // 2. Περίπτωση: Ανανέωση Συνδρομής (Invoice)
   if (event.type === "invoice.payment_succeeded") {
-    const invoice = event.data.object as Stripe.Invoice;
+    // ΒΑΛΑΜΕ ANY ΚΑΙ ΕΔΩ
+    const invoice = event.data.object as any;
 
     if (!invoice.subscription) {
         return new NextResponse(null, { status: 200 });
     }
 
-    // Το "as any" ξανά εδώ για να περάσει το build
     const subscription = (await stripe.subscriptions.retrieve(
       invoice.subscription as string
     )) as any;
