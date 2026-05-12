@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { Toaster } from 'sonner';
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import prisma from "@/lib/prisma";
-import MobileMenu from "@/components/MobileMenu"; // Το νέο component
+import MobileMenu from "@/components/MobileMenu"; 
 
 const inter = Inter({
   subsets: ["latin", "greek"],
@@ -29,7 +29,6 @@ export default async function RootLayout({
 }>) {
   const { userId } = await auth();
 
-  // Έλεγχος Premium στη Βάση Δεδομένων
   let isPremium = false;
   if (userId) {
     const user = await prisma.user.findUnique({
@@ -48,30 +47,40 @@ export default async function RootLayout({
           
           {/* NAVBAR */}
           <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl shadow-sm">
-            <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
               
-              <Link href="/" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105">
-                  <Activity className="w-5 h-5 text-white" />
+              {/* ΑΡΙΣΤΕΡΟ ΜΕΡΟΣ: Mobile Menu + Logo */}
+              <div className="flex items-center gap-2">
+                {/* Το μενού εμφανίζεται ΜΟΝΟ σε κινητά, ΤΕΡΜΑ ΑΡΙΣΤΕΡΑ */}
+                <div className="md:hidden">
+                  <MobileMenu isPremium={isPremium} />
                 </div>
-                <span className="text-xl font-extrabold text-white tracking-tight hidden sm:block">
-                  Fitness<span className="text-blue-500">App</span>
-                </span>
-              </Link>
 
-              <div className="flex items-center gap-3 sm:gap-6">
+                <Link href="/" className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105">
+                    <Activity className="w-5 h-5 text-white" />
+                  </div>
+                  {/* Κρύβουμε το κείμενο στα κινητά για να έχουμε χώρο */}
+                  <span className="text-xl font-extrabold text-white tracking-tight hidden md:block">
+                    Fitness<span className="text-blue-500">App</span>
+                  </span>
+                </Link>
+              </div>
+
+              {/* ΔΕΞΙ ΜΕΡΟΣ: Links & Icons */}
+              <div className="flex items-center gap-2 sm:gap-4">
                 {!userId ? (
-                  <>
+                  <div className="flex items-center gap-2">
                     <SignInButton mode="modal">
-                      <button className="text-sm font-bold text-slate-300 hover:text-white px-4 py-2 rounded-xl transition-colors">Είσοδος</button>
+                      <button className="text-xs sm:text-sm font-bold text-slate-300 hover:text-white px-3 py-2 transition-colors">Είσοδος</button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="text-sm font-black bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-blue-900/40 transition-all active:scale-95">Ξεκίνα δωρεάν</button>
+                      <button className="text-xs sm:text-sm font-black bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-all active:scale-95">Ξεκίνα</button>
                     </SignUpButton>
-                  </>
+                  </div>
                 ) : (
                   <>
-                    {/* DESKTOP MENU - Κρύβεται σε κινητά */}
+                    {/* DESKTOP LINKS - Κρύβονται σε κινητά */}
                     <div className="hidden md:flex items-center gap-6">
                       <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Αρχική</Link>
                       <Link href="/dashboard" className="text-sm font-bold text-white transition-colors">Προπονήσεις</Link>
@@ -87,48 +96,24 @@ export default async function RootLayout({
 
                     <div className="h-5 w-px bg-slate-800 hidden md:block"></div>
                     
-                
-
-  <div className="flex items-center gap-2">
-  <style>{`
-    @media (min-width: 1024px) {
-      #mobile-menu-wrapper { display: none !important; }
-    }
-    @media (max-width: 1023px) {
-      #mobile-menu-wrapper { display: block !important; }
-    }
-  `}</style>
-  
-  <div id="mobile-menu-wrapper">
-    <MobileMenu isPremium={isPremium} />
-  </div>
-
-  <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50 active:scale-95">
-    <Settings className="w-5 h-5" />
-  </Link>
-  
-  <NotificationsDropdown />
-</div>
-
-                    <div className="flex items-center justify-center transition-transform duration-200 ml-2 gap-3">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50">
+                        <Settings className="w-5 h-5" />
+                      </Link>
                       
-                      {/* PREMIUM BADGE */}
-                      {isPremium && (
-                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                          <Zap className="w-3 h-3 text-white fill-white" />
-                          <span className="text-[10px] font-black text-white uppercase tracking-widest">PRO</span>
+                      <NotificationsDropdown />
+                      
+                      {/* Premium Badge & User Button */}
+                      <div className="flex items-center gap-2 ml-1 sm:ml-2">
+                        {isPremium && (
+                          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-lg">
+                            <Zap className="w-3 h-3 text-white fill-white" />
+                            <span className="text-[10px] font-black text-white uppercase">PRO</span>
+                          </div>
+                        )}
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-slate-700/50 overflow-hidden">
+                          <UserButton appearance={{ elements: { avatarBox: "w-full h-full" } }} />
                         </div>
-                      )}
-
-                      <div className="w-10 h-10 rounded-full border-2 border-slate-700/50 bg-slate-900 flex items-center justify-center overflow-hidden">
-                        <UserButton 
-                          appearance={{
-                            elements: {
-                              rootBox: "w-full h-full",
-                              avatarBox: "w-full h-full rounded-full border-0"
-                            }
-                          }} 
-                        />
                       </div>
                     </div>
                   </>
