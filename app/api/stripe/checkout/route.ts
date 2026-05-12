@@ -5,7 +5,8 @@ import prisma from "@/lib/prisma"; // Προσοχή: βεβαιώσου ότι 
 
 // Αρχικοποίηση του Stripe με το Secret Key μας
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-04-10", // Χρησιμοποιούμε μια πρόσφατη έκδοση
+  // @ts-ignore
+  apiVersion: "2024-04-10", 
 });
 
 export async function POST(req: Request) {
