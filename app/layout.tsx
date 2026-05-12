@@ -89,20 +89,26 @@ export default async function RootLayout({
                     
                 
 
-           <div className="flex items-center gap-2">
-            {/* hidden: Κρυφό παντού (Default)
-              max-lg:block: Εμφανίζεται ΜΟΝΟ σε οθόνες μικρότερες από 1024px (Κινητά/Tablets)
-            */}
-            <div className="hidden max-lg:block">
-              <MobileMenu isPremium={isPremium} />
-            </div>
+  <div className="flex items-center gap-2">
+  <style>{`
+    @media (min-width: 1024px) {
+      #mobile-menu-wrapper { display: none !important; }
+    }
+    @media (max-width: 1023px) {
+      #mobile-menu-wrapper { display: block !important; }
+    }
+  `}</style>
+  
+  <div id="mobile-menu-wrapper">
+    <MobileMenu isPremium={isPremium} />
+  </div>
 
-            <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50 active:scale-95">
-              <Settings className="w-5 h-5" />
-            </Link>
-            
-            <NotificationsDropdown />
-          </div>
+  <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50 active:scale-95">
+    <Settings className="w-5 h-5" />
+  </Link>
+  
+  <NotificationsDropdown />
+</div>
 
                     <div className="flex items-center justify-center transition-transform duration-200 ml-2 gap-3">
                       
