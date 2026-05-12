@@ -24,6 +24,7 @@
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
     "stripe": "^22.1.1",
+    "svix": "^1.93.0",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
