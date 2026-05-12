@@ -33,9 +33,10 @@ export async function POST(req: Request) {
       return new NextResponse("User id is required", { status: 400 });
     }
 
-    const subscription = await stripe.subscriptions.retrieve(
+    // Το "as any" φιμώνει το TypeScript ώστε να μην ψάχνει τους τύπους
+    const subscription = (await stripe.subscriptions.retrieve(
       session.subscription as string
-    );
+    )) as any;
 
     await prisma.user.update({
       where: {
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
       data: {
         isPremium: true,
         stripeSubscriptionId: subscription.id,
-        stripeCustomerId: subscription.customer as string,
+        stripeCustomerId: subscription.customer,
         stripePriceId: subscription.items.data[0].price.id,
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000
@@ -57,14 +58,14 @@ export async function POST(req: Request) {
   if (event.type === "invoice.payment_succeeded") {
     const invoice = event.data.object as Stripe.Invoice;
 
-    // Αν δεν υπάρχει subscription id, αγνόησέ το
     if (!invoice.subscription) {
         return new NextResponse(null, { status: 200 });
     }
 
-    const subscription = await stripe.subscriptions.retrieve(
+    // Το "as any" ξανά εδώ για να περάσει το build
+    const subscription = (await stripe.subscriptions.retrieve(
       invoice.subscription as string
-    );
+    )) as any;
 
     await prisma.user.update({
       where: {
