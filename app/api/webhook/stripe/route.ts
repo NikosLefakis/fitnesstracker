@@ -10,7 +10,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = (await headers()).get("Stripe-Signature") as string;
+  const headersList = await headers();
+  const signature = headersList.get("Stripe-Signature") as string;
 
   let event: Stripe.Event;
 
@@ -18,25 +19,24 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET! // Βεβαιώσου ότι το έβαλες στο .env
+      process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (error: any) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-
-  // Αν η πληρωμή ολοκληρώθηκε
+  // 1. Περίπτωση: Ολοκλήρωση Πρώτης Πληρωμής
   if (event.type === "checkout.session.completed") {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
-    );
+    const session = event.data.object as Stripe.Checkout.Session;
 
     if (!session?.metadata?.userId) {
       return new NextResponse("User id is required", { status: 400 });
     }
 
-    // Κάνουμε τον χρήστη PRO στη βάση δεδομένων!
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string
+    );
+
     await prisma.user.update({
       where: {
         id: session.metadata.userId,
@@ -53,10 +53,17 @@ export async function POST(req: Request) {
     });
   }
 
-  // Αν ανανεώθηκε η συνδρομή (τον επόμενο μήνα)
+  // 2. Περίπτωση: Ανανέωση Συνδρομής (Invoice)
   if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object as Stripe.Invoice;
+
+    // Αν δεν υπάρχει subscription id, αγνόησέ το
+    if (!invoice.subscription) {
+        return new NextResponse(null, { status: 200 });
+    }
+
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
+      invoice.subscription as string
     );
 
     await prisma.user.update({
