@@ -46,7 +46,7 @@ export default function AiCoachForm() {
     // @ts-ignore
     const html2pdf = (await import("html2pdf.js")).default;
     
-    const opt = {
+    const opt : any =  {
       margin: [10, 10, 10, 10],
       filename: 'My_Workout_Plan.pdf',
       image: { type: 'jpeg', quality: 0.98 },
