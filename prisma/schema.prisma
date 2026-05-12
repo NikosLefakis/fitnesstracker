@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Θα το χρειαστούμε για το Supabase
+}
+
+// 1. Ο χρήστης (Δεν σώζουμε pass/emails, τα αναλαμβάνει το Clerk. Μόνο το ID του θέλουμε)
+model User {
+  id           String    @id // Το ID από το Clerk
+  weight       Float?    
+  height       Float?    
+  age          Int?      // ΗΛΙΚΙΑ
+  gender       String?   // ΦΥΛΟ
+  experience   String?   // ΕΠΙΠΕΔΟ (Beginner, κλπ)
+  trainingGoal String?   
+  daysPerWeek  Int?      @default(3)
+  workouts     Workout[] 
+  meals        Meal[]
+  createdAt    DateTime  @default(now())
+
+  // Stripe & Premium Fields
+  isPremium           Boolean   @default(false)
+  stripeCustomerId    String?   @unique
+  stripeSubscriptionId String?  @unique
+  stripePriceId       String?
+  stripeCurrentPeriodEnd DateTime?
+}
+
+// 2. Η Προπόνηση (π.χ. "Στήθος - Τρικέφαλα")
+model Workout {
+  id        String             @id @default(cuid())
+  userId    String             // Σε ποιον χρήστη ανήκει
+  user      User               @relation(fields: [userId], references: [id])
+  name      String             // Το όνομα της προπόνησης
+  date      DateTime           @default(now()) // Πότε έγινε
+  exercises ExerciseInstance[] // Μια προπόνηση έχει πολλές ασκήσεις
+}
+
+// 3. Η Άσκηση μέσα σε μια προπόνηση (π.χ. "Πιέσεις Πάγκου")
+model ExerciseInstance {
+  id        String   @id @default(cuid())
+  workoutId String   // Σε ποια προπόνηση ανήκει
+  workout   Workout  @relation(fields: [workoutId], references: [id])
+  name      String   // Το όνομα της άσκησης (θα μπορούσε να είναι ID από άλλο πίνακα, αλλά το κρατάμε απλό τώρα)
+  sets      Set[]    // Μια άσκηση έχει πολλά σετ
+}
+
+// 4. Το Σετ (π.χ. "10 επαναλήψεις, 80 κιλά")
+model Set {
+  id                 String           @id @default(cuid())
+  exerciseInstanceId String
+  exerciseInstance   ExerciseInstance @relation(fields: [exerciseInstanceId], references: [id])
+  reps               Int              // Επαναλήψεις
+  weight             Float            // Κιλά (βάλαμε Float για να δέχεται και δεκαδικά π.χ. 12.5)
+}
+
+model Meal {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String   // π.χ. "Πρωινό", "Μεσημεριανό"
+  foodName    String   // π.χ. "Κοτόπουλο με ρύζι"
+  calories    Int      // Θερμίδες
+  protein     Int      // Πρωτεΐνη (g)
+  carbs       Int?     // Υδατάνθρακες (προαιρετικά)
+  fat         Int?     // Λιπαρά (προαιρετικά)
+  createdAt   DateTime @default(now())
+}
