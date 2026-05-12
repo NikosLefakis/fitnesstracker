@@ -1,14 +1,15 @@
 import { ClerkProvider, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import Link from "next/link";
-import { Activity, Settings, Zap , Sparkles} from "lucide-react"; // Προστέθηκε το Zap
+import { Activity, Settings, Zap, Sparkles } from "lucide-react";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { Toaster } from 'sonner';
 import NotificationsDropdown from "@/components/NotificationsDropdown";
-import prisma from "@/lib/prisma"; // Απαραίτητο για τον έλεγχο του Premium
+import prisma from "@/lib/prisma";
+import MobileMenu from "@/components/MobileMenu"; // Το νέο component
 
 const inter = Inter({
   subsets: ["latin", "greek"],
@@ -70,45 +71,51 @@ export default async function RootLayout({
                   </>
                 ) : (
                   <>
+                    {/* DESKTOP MENU - Κρύβεται σε κινητά */}
                     <div className="hidden md:flex items-center gap-6">
                       <Link href="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Αρχική</Link>
                       <Link href="/dashboard" className="text-sm font-bold text-white transition-colors">Προπονήσεις</Link>
                       <Link href="/dashboard/nutrition" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Διατροφή</Link>
 
                       {isPremium && (
-                      <Link href="/dashboard/ai-coach" className="flex items-center gap-1.5 text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 hover:from-blue-300 hover:to-indigo-300 transition-all">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        AI Coach
-                      </Link>
-                    )}
-                      </div>
+                        <Link href="/dashboard/ai-coach" className="flex items-center gap-1.5 text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 hover:from-blue-300 hover:to-indigo-300 transition-all">
+                          <Sparkles className="w-4 h-4 text-blue-400" />
+                          AI Coach
+                        </Link>
+                      )}
+                    </div>
 
                     <div className="h-5 w-px bg-slate-800 hidden md:block"></div>
                     
-                    <div className="flex items-center gap-2">
-                      <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50 active:scale-95">
-                        <Settings className="w-5 h-5" />
-                      </Link>
-                      
-                      {/* ΤΟ COMPONENT ΤΩΝ ΕΙΔΟΠΟΙΗΣΕΩΝ */}
-                      <NotificationsDropdown />
-                      
-                    </div>
+                
+
+           <div className="flex items-center gap-2">
+            {/* hidden: Κρυφό παντού (Default)
+              max-lg:block: Εμφανίζεται ΜΟΝΟ σε οθόνες μικρότερες από 1024px (Κινητά/Tablets)
+            */}
+            <div className="hidden max-lg:block">
+              <MobileMenu isPremium={isPremium} />
+            </div>
+
+            <Link href="/dashboard/profile" className="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-800/50 active:scale-95">
+              <Settings className="w-5 h-5" />
+            </Link>
+            
+            <NotificationsDropdown />
+          </div>
 
                     <div className="flex items-center justify-center transition-transform duration-200 ml-2 gap-3">
                       
-                      {/* ΤΟ PREMIUM BADGE */}
-                      {/* ΑΥΤΟ ΕΙΝΑΙ ΤΟ PRO BADGE ΠΟΥ ΛΕΙΠΕΙ */}
-                    {isPremium && (
-                      <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                        <Zap className="w-3 h-3 text-white fill-white" />
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">PRO</span>
-                      </div>
-                    )}
+                      {/* PREMIUM BADGE */}
+                      {isPremium && (
+                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                          <Zap className="w-3 h-3 text-white fill-white" />
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">PRO</span>
+                        </div>
+                      )}
 
                       <div className="w-10 h-10 rounded-full border-2 border-slate-700/50 bg-slate-900 flex items-center justify-center overflow-hidden">
                         <UserButton 
-                          
                           appearance={{
                             elements: {
                               rootBox: "w-full h-full",
