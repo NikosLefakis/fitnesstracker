@@ -49,24 +49,28 @@ export default async function RootLayout({
           <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl shadow-sm">
             <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
               
-              {/* ΑΡΙΣΤΕΡΟ ΜΕΡΟΣ: Mobile Menu + Logo */}
-              <div className="flex items-center gap-2">
-                {/* Το μενού εμφανίζεται ΜΟΝΟ σε κινητά, ΤΕΡΜΑ ΑΡΙΣΤΕΡΑ */}
-                <div className="md:hidden">
-                  <MobileMenu isPremium={isPremium} />
-                </div>
+                  {/* ΑΡΙΣΤΕΡΟ ΜΕΡΟΣ: Mobile Menu + Logo */}
+      <div className="flex items-center gap-2">
+        {/* lg:hidden -> Κρύβεται σε Laptop/Desktop (από 1024px και πάνω)
+            flex -> Είναι ενεργό και ορατό σε όλες τις μικρότερες οθόνες
+        */}
+        <div className="lg:hidden flex items-center justify-center">
+          <MobileMenu isPremium={isPremium} />
+        </div>
 
-                <Link href="/" className="flex items-center gap-3 group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105">
-                    <Activity className="w-5 h-5 text-white" />
-                  </div>
-                  {/* Κρύβουμε το κείμενο στα κινητά για να έχουμε χώρο */}
-                  <span className="text-xl font-extrabold text-white tracking-tight hidden md:block">
-                    Fitness<span className="text-blue-500">App</span>
-                  </span>
-                </Link>
-              </div>
-
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105 shrink-0">
+            <Activity className="w-5 h-5 text-white" />
+          </div>
+          
+          {/* hidden lg:block -> Το κείμενο FitnessApp θα φαίνεται ΜΟΝΟ σε μεγάλες οθόνες.
+              Αυτό δίνει "αέρα" στα εικονίδια δεξιά στο κινητό για να μην το εξαφανίζουν.
+          */}
+          <span className="text-xl font-extrabold text-white tracking-tight hidden lg:block">
+            Fitness<span className="text-blue-500">App</span>
+          </span>
+        </Link>
+      </div>
               {/* ΔΕΞΙ ΜΕΡΟΣ: Links & Icons */}
               <div className="flex items-center gap-2 sm:gap-4">
                 {!userId ? (
